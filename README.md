@@ -1,6 +1,6 @@
 # pytuya2mqtt
 
-https://img.shields.io/github/license/lehanspb/pytuya2mqtt
+[![License](https://img.shields.io/github/license/lehanspb/pytuya2mqtt)](https://img.shields.io/github/license/lehanspb/pytuya2mqtt)
 
 A bridge between [jasonacox/tinytuya](https://github.com/jasonacox/tinytuya) and MQTT.
 
