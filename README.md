@@ -31,6 +31,14 @@ Or, as a `daemon`:
 python3 main.py -d
 ```
 
+To enable debugging output (required when opening an issue):
+```
+python3 main.py -v 
+```
+
+To enable tinytuya debugging use tinytuya.set_debug() or TINYTUYA_DEBUG environment variable
+
+
 ## Setup and config
 
 Install the necessary modules:
@@ -115,3 +123,83 @@ base_topic = tuya
 	}
 ]
 ```
+
+#### Systemd script for Debian-like OS
+
+Just create file /etc/systemd/system/pytuya2mqtt.service
+
+```
+[Unit]
+ Description=pytuya2mqtt
+ After=network.target
+  
+ [Service]
+ ExecStart=/usr/bin/python3 /opt/pytuya2mqtt/main.py -d
+ Restart=always
+ User=openhab
+ Group=openhab
+ Environment=PATH=/usr/bin/
+ WorkingDirectory=/opt/pytuya2mqtt/
+ 
+ [Install]
+ WantedBy=multi-user.target
+
+ ```
+
+Enable and run:
+```
+ systemctl enable pytuya2mqtt.service
+ systemctl start pytuya2mqtt
+```
+
+### MQTT Topic Overview
+
+The top level topics are created using the device name as the primary identifier. If the device as the name "Kitchen Table", the top level topic would be:
+
+```tuya/kitchen_table/```
+
+Controlling devices directly via DPS topics requires enough knowledge of the device to know which topics accept what values. Described below are two different methods for interfacing with DPS values, the JSON DPS topic, and the individual DPS key topics.
+
+DPS Key topics
+----------
+
+DPS key topics allow you to monitor and send simple bool/number/string values directly to DPS keys without having to use the Tuya JSON format, the conversion to Tuya JSON is handled by tuya-mqtt. Using the example from above, turning on the dimmer and setting brightness to 50% you would simply issue the message "true" to DPS/1/command and the message "128" to DPS/2/command.
+
+```
+tuya/dimmer_device/dps/1/state    --> true/false for on/off state
+tuya/dimmer_device/dps/2/command  <-- 1-255 for brightness state
+tuya/dimmer_device/dps/1/state    --> accept true/false for turning device on/off
+tuya/dimmer_device/dps/2/command  <-- accepts 1-255 for controlling brightness level
+```
+
+!!! Important Note !!! When sending commands directly to DPS values there are no limitation on what values are sent as tuya-mqtt has no way to know what are valid vs invalid for any given DPS key. Sending values that are out-of-range or of different types than the DPS key expects can cause unpredictable behavior of your device, from causing timeouts, to reboots, to hanging the device. While I've never seen a device fail to recover after a restart, please keep this in mind when sending commands to your device.
+
+DPS Topics for devices behind Zigbee Gateway
+----------
+In addition to the DPS Key topics, it's possible to use the DPS for devices behind Tuya Gateway.
+'cid' - is the subdevice id.
+'name' - is the name of subdevice (from devices.json)
+
+This example demostrates DPS values and commands for Tuya Smart Thermostat Radiator Valve behind Zigbee Gateway:
+
+```
+Thermostat mode:
+tuya/thermostat/dsp/4/state      --> {"4":"auto"}
+Possible values: auto/temp_auto/holiday/manual/comfort/eco/BOOST
+tuya/thermostat/dps/4/command    <-- auto
+
+Temperature Setpoint:
+tuya/thermostat/dps/2/state      --> {"2": 220}
+Where 220 - 22.0 Celsius
+tuya/thermostat/dps/command      <-- 225
+
+Current Temperature:
+tuya/thermostat/dps/3/state      --> {"3": 225}
+Where 225 - 22.5 Celsius
+
+Valve percent:
+tuya/thermostat/dps/109/state    --> {"109": 30}
+Where 30 - 30%
+```
+
+
