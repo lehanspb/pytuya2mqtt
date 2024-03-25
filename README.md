@@ -1,5 +1,7 @@
 # pytuya2mqtt
 
+https://img.shields.io/github/license/lehanspb/pytuya2mqtt
+
 A bridge between [jasonacox/tinytuya](https://github.com/jasonacox/tinytuya) and MQTT.
 
 Based on [mafrosis/tinytuya2mqtt](https://github.com/mafrosis/tinytuya2mqtt)
@@ -131,12 +133,12 @@ Just create file /etc/systemd/system/pytuya2mqtt.service
 ```
 [Unit]
  Description=pytuya2mqtt
- After=network.target
+ After=mosquitto.service
   
  [Service]
  ExecStart=/usr/bin/python3 /opt/pytuya2mqtt/main.py -d
  Restart=always
- User=openhab
+ User=root
  Group=openhab
  Environment=PATH=/usr/bin/
  WorkingDirectory=/opt/pytuya2mqtt/
