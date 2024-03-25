@@ -27,9 +27,6 @@ import tinytuya
 import platform
 import argparse
 import daemon
-# from pid import PidFile
-
-
 
 MQTT_INI = 'mqtt.ini'
 DEVICES_JSON = 'devices.json'
@@ -54,6 +51,7 @@ if os.environ.get('DEBUG'):
 if os.environ.get('TINYTUYA_DEBUG'):
 	tinytuya.set_debug()
 
+# Uncomment if you want to see full debug
 # tinytuya.set_debug()
 
 MQTT_HOST = None
@@ -62,8 +60,6 @@ MQTT_PASSWORD = None
 MQTT_TOPIC = None
 mqtt_auth = None
 TIME_SLEEP = 5
-
-PID_FILE = '/var/run/'+PROJECT_NAME+'.pid'
 
 @dataclasses.dataclass
 class Device:
@@ -137,7 +133,6 @@ def read_config() -> List[Device]:
 		cfg.read_string(f.read())
 
 	try:
-		# Map the device pin configurations into the Device class
 		for section in cfg.sections():
 			parts = section.split(' ')
 
@@ -182,9 +177,7 @@ def start_daemon(args):
 		working_directory='/var/tmp',
 		stdout=sys.stdout,
 		stderr=sys.stderr,
-		stdin=sys.stdin,
-		# umask=0o002,
-		# pidfile=PidFile(args.pid_file)
+		stdin=sys.stdin
 	)
 
 	with context:
@@ -225,7 +218,7 @@ def on_message(_, userdata: dict, msg: bytes):
 			device.tuya.set_value(dps, val)
 			logger.debug('Setting %s to %s', dps, val)
 		else:
-			val = int(float(val)) # Convert numbers to int
+			val = int(float(val))
 			device.tuya.set_value(dps, val)
 			logger.debug('Setting %s to %s', dps, val)
 
@@ -430,7 +423,6 @@ def main():
 	parser.add_argument('-c', '--config', default=MQTT_INI, help="configuration file")
 	parser.add_argument('-d', '--daemon', action='store_true', help="run as daemon")
 	# parser.add_argument('-p', '--pid-file', default=PID_FILE)
-	# parser.add_argument('-l', '--log-file', default='/var/log/'+PROJECT_NAME+'.log')
 	parser.add_argument('-v', '--verbose', action='store_true', help="verbose messages")
 
 	cmdline_args = parser.parse_args()
