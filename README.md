@@ -13,6 +13,7 @@ Using this script requires obtaining the device ID and local keys for each of yo
 ## Features
 
 * Local operations without Tuya cloud
+* Tuya protocol version 3.1, 3.2, 3.3, 3.4 and 3.5 support
 * Read states and send commands from/to any Tuya devices via MQTT
 * Multithreading. Each device is polled independently
 * Fully supports any sub-Devices behind Zigbee gateway
@@ -31,14 +32,13 @@ python3 main.py -d
 ```
 
 ## Setup and config
-----------
 
 Install the necessary modules:
 ```
 pip3 install -r requirements.txt
 ```
 
-### Config
+Config
 ----------
 
 Two things are required:
@@ -48,7 +48,6 @@ Two things are required:
 
 
 #### mqtt.ini
-----------
 
 Example:
 
@@ -61,7 +60,7 @@ base_topic = tuya
 ```
 
 #### devices.json
-----------
+
 
 ```json
 [
