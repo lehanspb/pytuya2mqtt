@@ -177,8 +177,10 @@ tuya/dimmer_device/dps/2/command  <-- accepts 1-255 for controlling brightness l
 DPS Topics for devices behind Zigbee Gateway
 ----------
 In addition to the DPS Key topics, it's possible to use the DPS for devices behind Tuya Gateway.
+
 'cid' - is the subdevice id.
 'name' - is the name of subdevice (from devices.json)
+
 
 This example demostrates DPS values and commands for Tuya Smart Thermostat Radiator Valve behind Zigbee Gateway:
 
