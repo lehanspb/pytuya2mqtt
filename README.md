@@ -205,4 +205,5 @@ tuya/thermostat/dps/109/state    --> {"109": 30}
 Where 30 - 30%
 ```
 
-
+### Integration with openHAB
+openHAB 3.x/4.x examples are [here](docs/openhab.md).
