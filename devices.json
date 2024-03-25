@@ -1,0 +1,52 @@
+[
+	{
+		"name": "gw2",
+		"id": "aaaabbbbccccddddeeeeff",
+		"ip": "192.168.20.21",
+		"key": "????xxxxZZZZUUU",
+		"version": 3.4,
+		"subDevices":
+		[
+			{
+				"name": "gw2-temp1",
+				"id": "bbbbccccddddeeeeffffgg",
+				"cid": "4444ccccddddeeee"
+		  	},
+		  	{
+				"name": "temp2",
+				"id": "ccccddddeeeeffffgggghh",
+				"cid": "5555ccccddddeeee"
+		  	}
+		] 
+	},
+	{
+		"name": "gw1",
+		"id": "aaaabbbbccccddddeeeeff",
+		"ip": "192.168.20.22",
+		"key": "ZZZZxxxx????UUU",
+		"version": 3.3,
+		"subDevices":
+		 [ 
+			{
+				"name": "trv",
+				"id": "zzzzddddeeeeffffgggghh",
+				"cid": "6666ccccddddeeee"
+		   	}
+		 ] 
+	},
+	{
+		"name": "socket",
+		"id": "aaaabbbbccccddddeeeeff",
+		"ip": "192.168.20.23",
+		"key": "ZZZZxxxx$$$$UUU",
+		"version": 3.3
+	},
+	{
+		"name": "socket2",
+		"id": "yyyybbbbccccddddeeeeff",
+		"ip": "192.168.20.24",
+		"key": "ZZZZssss$$$$UUU",
+		"version": 3.5
+	}
+]
+
