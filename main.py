@@ -282,6 +282,10 @@ def read_and_publish_status(device: Device):
 	Params:
 		device:  An instance of Device dataclass
 	'''
+
+	if device.gw:
+		device.gw.subdev_query(nowait=True)
+
 	data = device.tuya.receive()
 
 	if data and 'Err' in data:
@@ -295,9 +299,7 @@ def read_and_publish_status(device: Device):
 
 		logger.debug('Status. Received Payload:  %s', data)
 		dps = data['dps']
-		msgs = [
-			(f'{MQTT_TOPIC}/{device.name}/online', 'online')
-		]
+		msgs = []
 
 		for k in dps:
 			msgs.append(
@@ -318,31 +320,11 @@ def read_and_publish_dps_data(device: Device, pingtime, polltime):
 		polltime: polling timeout
 	'''
 
-	# data = device.tuya.receive()
-	# if device.gw:
-	# 	data = device.gw.receive()
-	# 	if data and 'Err' in data:
-	# 		data = device.gw.status()
-	# 		logger.debug('DPS GW Data. Received Error Payload:  %s', data)
-	# 	elif data and 'Err' not in data:
-	# 		logger.info('DPS GW Data. Received Payload: %r' % data)
-	# else:
-	# 	data = device.tuya.receive()
-	# 	if data and 'Err' in data:
-	# 		data = device.tuya.status()
-	# 		logger.debug('DPS Tuya Data. Received Error Payload:  %s', data)
-	# 	elif data and 'Err' not in data:
-	# 		logger.info('DPS Tuya Data. Received Payload: %r' % data)
 	data = device.tuya.receive()
 	if data and 'Err' in data:
 		data = device.tuya.status()
 	elif data and 'Err' not in data:
 		logger.info('Received Payload: %r' % data)
-	# if data and 'Err' in data:
-	# 	data = device.tuya.status()
-	# 	logger.debug('DPS Tuya Data. Received Error Payload:  %s', data)
-	# elif data and 'Err' not in data:
-	# 	logger.info('DPS Tuya Data. Received Payload: %r' % data)
 
 	if( pingtime <= time.time() ):
 		pingtime = time.time() + PING_TIME
@@ -357,6 +339,9 @@ def read_and_publish_dps_data(device: Device, pingtime, polltime):
 	# Option - Poll for status
 	if( polltime <= time.time() ):
 		polltime = time.time() + POLL_TIME
+
+		if device.gw:
+			device.gw.subdev_query(nowait=True)
 
 		# Option - Some plugs require an UPDATEDPS command to update their power data points
 		if False:
@@ -377,9 +362,6 @@ def read_and_publish_dps_data(device: Device, pingtime, polltime):
 	if data and 'dps' in data and 'cid' in data:
 		for cid, name in deviceslst.items():
 			if cid == data['cid']:
-				msgs = [
-					(f'{MQTT_TOPIC}/{name}/online', 'online')
-				]
 				dps = data['dps']
 				for k in dps:
 					msgs.append(
@@ -387,13 +369,27 @@ def read_and_publish_dps_data(device: Device, pingtime, polltime):
 					)
 	elif data and 'dps' in data and 'cid' not in data:
 		dps = data['dps']
-		msgs = [
-			(f'{MQTT_TOPIC}/{device.name}/online', 'online')
-		]
 		for k in dps:
 			msgs.append(
 				(f'{MQTT_TOPIC}/{device.name}/dps/{k}/state', dps[k])
 			)
+	elif data and 'reqType' in data:
+		if data['reqType'] == 'subdev_online_stat_report':
+			if data['data']:
+				if data['data'] and 'online' in data['data']:
+					for onl in data['data']['online']:
+						for cid, name in deviceslst.items():
+							if cid == onl:
+								msgs.append(
+									(f'{MQTT_TOPIC}/{name}/online', 'online')
+								)
+				if data['data'] and 'offline' in data['data']:
+					for ofl in data['data']['offline']:
+						for cid, name in deviceslst.items():
+							if cid == ofl:
+								msgs.append(
+									(f'{MQTT_TOPIC}/{name}/online', 'offline')
+								)
 
 	if msgs:
 		logger.info('PUBLISH: %s', msgs)
